@@ -1,3 +1,13 @@
+<?php
+$filePath = 'data/reports.json';
+$reports = [];
+
+if (file_exists($filePath)){
+    $jsonData = file_get_contents($filePath);
+    $reports = json_decode($jsonData, true) ?? [];
+}
+?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -191,8 +201,18 @@
                     <button class="filter-btn">Selesai</button>
                 </div>
 
-                <div id="reportList" class="report-list" aria-live="polite"></div>
-
+                <div id="reportList" class="report-list" aria-live="polite">
+                    <?php if (empty($reports)): ?>
+                        <p>Belum ada Laporan yang tersedia.</p>
+                    <?php else: ?>
+                        <?php foreach ($reports as $report): ?>
+                            <div class="report-card">
+                                <h3><?php echo htmlspecialchars($report['title'] ?? 'Tanpa Judul'); ?></h3>
+                                <p><?php echo htmlspecialchars($report['description'] ?? ''); ?></p>
+                                <span class="badge"><?php echo htmlspecialchars($report['status'] ?? 'Menunggu'); ?></span>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
             </div>
         </section>
 

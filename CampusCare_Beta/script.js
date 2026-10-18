@@ -313,7 +313,7 @@ function validateForm(formData) {
 // API: AMBIL DATA LAPORAN (Pertemuan 4 - Task 1, 2, 3)
 // =========================
 
-const API_URL = 'http://localhost:3000/api/reports';   // "API" lokal berupa file JSON
+const API_URL = 'api/reports.php';   // "API" nyoba laragon
 const SIMULATE_DELAY_MS = 800;         // jeda buatan agar loading terlihat saat demo (isi 0 untuk mematikan)
 
 let apiReports = [];
@@ -680,17 +680,18 @@ function getStatusOverrides() {
     try { return JSON.parse(localStorage.getItem('campuscare_status')) || {}; } catch (e) { return {}; }
 }
 
+// Render kontrol admin (dropdown status + tombol hapus)
 function statusControl(r) {
   if (!isAdmin()) return `<span class="status ${r.status}" style="margin-left: auto;">${r.status}</span>`;
   
-  const opts = STATUS.map(s => `<option${s === r.status ? ' selected' : ''}>${s}</option>`).join('');
+  const opts = STATUS.map(s => `<option value="${s}"${s === r.status ? ' selected' : ''}>${s}</option>`).join('');
   
   return `
     <div style="margin-left: auto; display: flex; align-items: center; gap: 8px;">
       <select data-id="${r.id}" aria-label="Ubah status laporan" class="rounded-full border border-solid border-[#e0e0e0] bg-white px-3 py-1 text-xs font-semibold text-ink outline-none focus:border-brand">
         ${opts}
       </select>
-      <button type="button" onclick="deleteReportFromWeb(${r.id})" class="rounded-full bg-red-100 text-red-600 px-3 py-1 text-xs font-semibold hover:bg-red-600 hover:text-white transition">
+      <button type="button" onclick="deleteReportFromWeb('${r.id}')" class="rounded-full bg-red-100 text-red-600 px-3 py-1 text-xs font-semibold hover:bg-red-600 hover:text-white transition cursor-pointer">
         Hapus
       </button>
     </div>
@@ -785,18 +786,26 @@ if (loginModal) {
     });
 
     // Admin: ubah status laporan via HTTP PUT
+// Admin: Ubah status laporan via POST action
 reportList?.addEventListener('change', async (e) => {
     const sel = e.target.closest('select[data-id]');
     if (!sel || !isAdmin()) return;
+
+    e.preventDefault();
+    e.stopPropagation();
 
     const reportId = sel.dataset.id;
     const newStatus = sel.value;
 
     try {
-        const response = await fetch(`${API_URL}/${reportId}`, {
-            method: 'PUT',
+        const response = await fetch(API_URL, {
+            method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ status: newStatus })
+            body: JSON.stringify({ 
+                action: 'update_status',
+                id: reportId, 
+                status: newStatus 
+            })
         });
 
         if (!response.ok) throw new Error('Gagal memperbarui status');
@@ -809,23 +818,33 @@ reportList?.addEventListener('change', async (e) => {
     }
 });
 
-// Admin: hapus laporan via HTTP DELETE
+// Admin: Hapus laporan via DELETE
 window.deleteReportFromWeb = async function(id) {
     if (!isAdmin()) return;
+    if (!id || id === 'undefined') {
+        showNotification('ID laporan tidak valid.');
+        return;
+    }
+
     if (!confirm('Apakah Anda yakin ingin menghapus laporan ini?')) return;
 
     try {
-        const response = await fetch(`${API_URL}/${id}`, {
+        // Pastikan ID dikirim via Query Parameter
+        const response = await fetch(`${API_URL}?id=${encodeURIComponent(id)}`, {
             method: 'DELETE'
         });
 
-        if (!response.ok) throw new Error('Gagal menghapus laporan');
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.message || 'Gagal menghapus laporan');
+        }
 
         await loadReports();
         showNotification('Laporan berhasil dihapus.');
     } catch (err) {
         console.error(err);
-        showNotification('Gagal menghapus laporan dari server.');
+        showNotification('Gagal menghapus laporan: ' + err.message);
     }
 };
 
@@ -887,9 +906,9 @@ window.deleteReportFromWeb = async function(id) {
 // START: AMBIL DATA DARI API + TOMBOL "COBA LAGI"
 // =========================
 
-reportList?.addEventListener('click', e => {
-    if (reportList) loadReports();
-});
+//reportList?.addEventListener('click', e => {
+//    if (reportList) loadReports();
+//});
 
 loadReports();
 
