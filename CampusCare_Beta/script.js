@@ -313,7 +313,7 @@ function validateForm(formData) {
 // API: AMBIL DATA LAPORAN (Pertemuan 4 - Task 1, 2, 3)
 // =========================
 
-const API_URL = 'api/reports.php';   // "API" nyoba laragon
+const API_URL = window.CAMPUSCARE_API_URL || 'api/reports.php';
 const SIMULATE_DELAY_MS = 800;         // jeda buatan agar loading terlihat saat demo (isi 0 untuk mematikan)
 
 let apiReports = [];
@@ -920,21 +920,13 @@ loadReports();
     const navMenu = document.querySelector('.nav-menu');
     const hamburger = document.querySelector('.hamburger');
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const isMobile = () => window.innerWidth <= 768;
     const closeAll = () => items.forEach(i => i.classList.remove('open'));
-    const norm = p => p.replace(/index\.html$/, '');
+    const norm = url => [
+        url.pathname.replace(/index\.(?:html|php)$/, ''),
+        url.searchParams.get('route') || ''
+    ].join('|');
 
-    /* ---------- buka/tutup menu di mobile ---------- */
     items.forEach(item => {
-        const trigger = item.querySelector(':scope > .nav-link');
-        trigger.addEventListener('click', e => {
-            if (!isMobile()) return;          // desktop: pakai transisi di bawah
-            e.preventDefault();
-            e.stopImmediatePropagation();     // jangan tutup hamburger
-            const wasOpen = item.classList.contains('open');
-            closeAll();
-            item.classList.toggle('open', !wasOpen);
-        }, true);
         item.addEventListener('mouseleave', () => item.classList.remove('suppress'));
     });
     document.addEventListener('click', e => { if (!e.target.closest('.has-mega')) closeAll(); });
@@ -967,7 +959,8 @@ loadReports();
     // logo di tengah layar saat kolom menutup halaman
     const logo = document.createElement('div');
     logo.className = 'wipe-logo';
-    logo.innerHTML = '<div class="tile"><img src="img/campuscare-logo.png" alt=""></div><span>CampusCare</span>';
+    logo.innerHTML = '<div class="tile"><img alt=""></div><span>CampusCare</span>';
+    logo.querySelector('img').src = window.CAMPUSCARE_LOGO_URL;
     wipe.appendChild(logo);
 
     document.body.appendChild(wipe);
@@ -1075,9 +1068,6 @@ loadReports();
         const a = e.target.closest('.mega a, .nav-menu a.nav-link, a.brand');
         if (!a) return;
 
-        // mobile: teks menu yang punya panel hanya buka/tutup panel
-        if (a.matches('.nav-link') && a.parentElement.classList.contains('has-mega') && isMobile()) return;
-
         const href = a.getAttribute('href');
         if (!href || href === '#' && a.dataset.action !== 'report') return;
 
@@ -1097,7 +1087,7 @@ loadReports();
         }
 
         const url = new URL(href, location.href);
-        if (norm(url.pathname) !== norm(location.pathname)) { leaveTo(url.href); return; }  // halaman lain
+        if (norm(url) !== norm(new URL(location.href))) { leaveTo(url.href); return; }  // halaman lain
 
         const target = url.hash ? document.querySelector(url.hash) : null;                  // halaman ini
         if (target) goTo(target);
