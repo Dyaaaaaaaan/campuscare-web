@@ -3,7 +3,11 @@
 @section('title', 'Daftar Laporan - CampusCare')
 
 @section('content')
-    <h1>Daftar Laporan (`reports`)</h1>
+    <div class="page-header">
+        <h1>Daftar Laporan (`reports`)</h1>
+        <a href="{{ route('reports.create') }}" class="btn btn-primary">+ Tambah Laporan</a>
+    </div>
+
     <table>
         <thead>
             <tr>
@@ -16,6 +20,7 @@
                 <th>Pelapor</th>
                 <th>Tanggal</th>
                 <th>Status</th>
+                <th>Aksi</th>
             </tr>
         </thead>
         <tbody>
@@ -40,9 +45,19 @@
                     <td>{{ $report->user->name }}</td>
                     <td>{{ $report->reported_at->format('d-m-Y') }}</td>
                     <td><span class="badge {{ $report->status }}">{{ $report->status }}</span></td>
+                    <td>
+                        <div class="actions">
+                            <a href="{{ route('reports.edit', $report->id) }}" class="btn btn-edit">Edit</a>
+                            <form action="{{ route('reports.destroy', $report->id) }}" method="POST" onsubmit="return confirm('Hapus laporan ini?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-delete">Hapus</button>
+                            </form>
+                        </div>
+                    </td>
                 </tr>
             @empty
-                <tr><td colspan="9" class="empty">Belum ada laporan.</td></tr>
+                <tr><td colspan="10" class="empty">Belum ada laporan.</td></tr>
             @endforelse
         </tbody>
     </table>
