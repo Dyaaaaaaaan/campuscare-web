@@ -6,7 +6,7 @@
         "location": "Gedung B, Lantai 3",
         "description": "",
         "image": null,
-        "status": "Menunggu",
+        "status": "Diproses",
         "date": "2024-01-10",
         "createdAt": "2026-10-19 10:22:49"
     },
@@ -64,5 +64,16 @@
         "status": "Menunggu",
         "date": "2026-10-18",
         "createdAt": "2026-10-18 01:55:27"
+    },
+    {
+        "id": 1794038642,
+        "category": "Fasilitas Air",
+        "title": "kran rusak",
+        "location": "gkb 1",
+        "description": "rusak",
+        "image": null,
+        "status": "Menunggu",
+        "date": "2026-11-07",
+        "createdAt": "2026-11-07 08:04:02"
     }
 ]

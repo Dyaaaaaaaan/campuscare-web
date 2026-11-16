@@ -15,6 +15,16 @@ $basePath = dirname($scriptName);
 $basePath = $basePath === '/' ? '' : $basePath;
 
 $route = $_GET['route'] ?? null;
+if (is_string($route) && str_contains($route, '?')) {
+    [$routePart, $extraQuery] = explode('?', $route, 2);
+    $route = $routePart;
+    parse_str($extraQuery, $extraParams);
+    foreach ($extraParams as $k => $v) {
+        if (!isset($_GET[$k])) {
+            $_GET[$k] = $v;
+        }
+    }
+}
 $path = is_string($route)
     ? '/' . trim($route, '/')
     : (parse_url($requestUri, PHP_URL_PATH) ?? '/');

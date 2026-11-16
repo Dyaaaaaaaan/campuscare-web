@@ -82,6 +82,11 @@ class Report
         return $this->createdAt;
     }
 
+    public function setId(int|string $id): void
+    {
+        $this->id = $id;
+    }
+
     public function setStatus(string $status): void
     {
         $this->status = $status;

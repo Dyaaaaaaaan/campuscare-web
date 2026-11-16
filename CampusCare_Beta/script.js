@@ -830,7 +830,8 @@ window.deleteReportFromWeb = async function(id) {
 
     try {
         // Pastikan ID dikirim via Query Parameter
-        const response = await fetch(`${API_URL}?id=${encodeURIComponent(id)}`, {
+        const sep = API_URL.includes('?') ? '&' : '?';
+        const response = await fetch(`${API_URL}${sep}id=${encodeURIComponent(id)}`, {
             method: 'DELETE'
         });
 

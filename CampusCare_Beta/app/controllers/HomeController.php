@@ -2,17 +2,13 @@
 
 declare(strict_types=1);
 
-// MVC - Controller: menyiapkan data halaman lalu memilih view yang akan dirender.
+// MVC - Controller: menyiapkan data halaman dari database MySQL Laravel lalu merender view.
 class HomeController
 {
     public function index(): void
     {
-        $reports = [];
         $repository = new ReportRepository(__DIR__ . '/../../data/reports.json');
-
-        if (file_exists(__DIR__ . '/../../data/reports.json')) {
-            $reports = $repository->getAll();
-        }
+        $reports = $repository->getAll();
 
         require __DIR__ . '/../views/home.php';
     }
